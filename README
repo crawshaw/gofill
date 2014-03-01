@@ -1,0 +1,7 @@
+gofill is an experimental hinting service for text editors.
+
+If it pans out, this repository will be merged back into
+code.google.com/p/go.tools, and go through a proper code
+review in the process.
+
+Instructions on use will appear here when it is usable.
