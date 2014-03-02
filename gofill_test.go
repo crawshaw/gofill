@@ -5,15 +5,8 @@
 package gofill
 
 import (
-	"fmt"
-	"go/build"
-	"go/parser"
-	"go/token"
-	"os"
-	"path/filepath"
 	"reflect"
 	"strings"
-	"sync"
 	"testing"
 )
 
@@ -222,16 +215,16 @@ var suggestTests = []suggestTest{
 	},
 
 	/*
-	{
-		"goimports inference of ambiguous package",
-		`package main
+		{
+			"goimports inference of ambiguous package",
+			`package main
 
-		func main() {
-			var x template.HTML // narrows down which template package
-			template.C‸
-		}`,
-		[]string{"html/template"},
-	},
+			func main() {
+				var x template.HTML // narrows down which template package
+				template.C‸
+			}`,
+			[]string{"html/template"},
+		},
 	*/
 }
 
@@ -255,93 +248,9 @@ func TestSuggest(t *testing.T) {
 
 var index *Index
 
-var pkgIndexer struct {
-	sync.Mutex
-	m *Indexer
-}
-
 func init() {
-	pkgIndexer.Lock()
-	pkgIndexer.m = new(Indexer)
-	pkgIndexer.Unlock()
-
-	path := filepath.Join(build.Default.GOROOT, "src", "pkg")
-	f, err := os.Open(path)
-	if err != nil {
-		fmt.Fprint(os.Stderr, err)
-		return
-	}
-	children, err := f.Readdir(-1)
-	f.Close()
-	if err != nil {
-		fmt.Fprint(os.Stderr, err)
-		return
-	}
-
-	var wg sync.WaitGroup
-	for _, child := range children {
-		if child.IsDir() {
-			wg.Add(1)
-			go func(path, name string) {
-				defer wg.Done()
-				loadPkg(&wg, path, name)
-			}(path, child.Name())
-		}
-	}
-	wg.Wait()
-
-	pkgIndexer.Lock()
-	index = pkgIndexer.m.Index()
-	pkgIndexer.Unlock()
-
+	index = SimpleIndexer()
 	index.pkgs["fake/go-fakepkg"] = &pkgDecl{
 		shortName: "fakepkg",
-	}
-}
-
-var fset = token.NewFileSet()
-
-func loadPkg(wg *sync.WaitGroup, root, pkgrelpath string) {
-	importPath := filepath.ToSlash(pkgrelpath)
-
-	buildPkg, err := build.Import(importPath, "", 0)
-	if err == nil {
-		for _, fileName := range buildPkg.GoFiles {
-			path := filepath.Join(root, importPath, fileName)
-			f, err := parser.ParseFile(fset, path, nil, parser.ParseComments|parser.AllErrors)
-			if err != nil {
-				continue
-			}
-			pkgIndexer.Lock()
-			pkgIndexer.m.AddFile(importPath, f)
-			pkgIndexer.Unlock()
-		}
-	}
-
-	dir := filepath.Join(root, importPath)
-	pkgDir, err := os.Open(dir)
-	if err != nil {
-		return
-	}
-	children, err := pkgDir.Readdir(-1)
-	pkgDir.Close()
-	if err != nil {
-		return
-	}
-	for _, child := range children {
-		name := child.Name()
-		if name == "" {
-			continue
-		}
-		if c := name[0]; c == '.' || ('0' <= c && c <= '9') {
-			continue
-		}
-		if child.IsDir() {
-			wg.Add(1)
-			go func(root, name string) {
-				defer wg.Done()
-				loadPkg(wg, root, name)
-			}(root, filepath.Join(importPath, name))
-		}
 	}
 }

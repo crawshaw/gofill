@@ -112,19 +112,19 @@ func (x *Index) pkgSearch(query *queryState, pkg *pkgDecl, name string) {
 			}
 			query.res.Suggest = append(query.res.Suggest, Suggestion{
 				Range: query.pos,
-				Name: decl.name,
-				Doc: decl.doc,
+				Name:  decl.name,
+				Doc:   decl.doc,
 			})
 		}
 	}
 }
 
 type queryState struct {
-	f    *ast.File
-	path []ast.Node
+	f     *ast.File
+	path  []ast.Node
 	scope map[string]scopeObj
-	pos  Range
-	res  Result
+	pos   Range
+	res   Result
 }
 
 func (x *Index) Query(src string, offset int) Result {
@@ -205,7 +205,7 @@ func (x *Index) Query(src string, offset int) Result {
 		})
 	}
 
-	if len(path) <=2 {
+	if len(path) <= 2 {
 		// We do nothing useful at the top level yet (maybe never).
 		//
 		// In particular, ignore top-level Idents. In the top-level,
@@ -234,55 +234,7 @@ func (x *Index) Query(src string, offset int) Result {
 func (x *Index) Handle(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprintf(w, `<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<link type="text/css" rel="stylesheet" href="/lib/godoc/style.css">
-<script type="text/javascript">window.initFuncs = [];</script>
-</head>
-<body style="margin: 20px;">
-
-<div id="learn">
-<div class="input">
-
-<div id="doc">
-</div>
-
-<textarea spellcheck="false" class="code">package main
-
-import "fmt"
-
-func main() {
-	fmt
-}</textarea>
-</div>
-<div class="output">
-<pre>
-</pre>
-</div>
-<div class="buttons">
-<a class="run" href="#" title="Run this code [shift-enter]">Run</a>
-</div>
-</div>
-
-<script type="text/javascript" src="/lib/godoc/jquery.js"></script>
-<script type="text/javascript" src="/lib/godoc/jquery.textcomplete.js"></script>
-<script type="text/javascript" src="/lib/godoc/playground.js"></script>
-
-<script type="text/javascript">
-	if (window.playground) {
-		window.playground({
-			"codeEl":        "#learn .code",
-			"outputEl":      "#learn .output",
-			"runEl":         "#learn .run",
-		});
-	}
-</script>
-
-</body>
-</html>
-`)
+		fmt.Fprintf(w, StaticFiles["editor.html"])
 		return
 	}
 	if r.Method != "POST" {

@@ -5,7 +5,14 @@
 package gofill
 
 import (
+	"fmt"
 	"go/ast"
+	"go/build"
+	"go/parser"
+	"go/token"
+	"os"
+	"path/filepath"
+	"sync"
 )
 
 type Indexer struct {
@@ -69,6 +76,95 @@ func (p *Indexer) AddFile(dirname string, file *ast.File) {
 				name: d.Name.Name,
 				doc:  d.Doc.Text(),
 			})
+		}
+	}
+}
+
+var fset = token.NewFileSet()
+
+type simpleIndexer struct {
+	sync.Mutex
+	m *Indexer
+}
+
+func SimpleIndexer() *Index {
+	p := new(simpleIndexer)
+
+	p.Lock()
+	p.m = new(Indexer)
+	p.Unlock()
+
+	path := filepath.Join(build.Default.GOROOT, "src", "pkg")
+	f, err := os.Open(path)
+	if err != nil {
+		fmt.Fprint(os.Stderr, err)
+		return nil
+	}
+	children, err := f.Readdir(-1)
+	f.Close()
+	if err != nil {
+		fmt.Fprint(os.Stderr, err)
+		return nil
+	}
+
+	var wg sync.WaitGroup
+	for _, child := range children {
+		if child.IsDir() {
+			wg.Add(1)
+			go func(path, name string) {
+				defer wg.Done()
+				p.loadPkg(&wg, path, name)
+			}(path, child.Name())
+		}
+	}
+	wg.Wait()
+
+	p.Lock()
+	defer p.Unlock()
+	return p.m.Index()
+}
+
+func (p *simpleIndexer) loadPkg(wg *sync.WaitGroup, root, pkgrelpath string) {
+	importPath := filepath.ToSlash(pkgrelpath)
+
+	buildPkg, err := build.Import(importPath, "", 0)
+	if err == nil {
+		for _, fileName := range buildPkg.GoFiles {
+			path := filepath.Join(root, importPath, fileName)
+			f, err := parser.ParseFile(fset, path, nil, parser.ParseComments|parser.AllErrors)
+			if err != nil {
+				continue
+			}
+			p.Lock()
+			p.m.AddFile(importPath, f)
+			p.Unlock()
+		}
+	}
+
+	dir := filepath.Join(root, importPath)
+	pkgDir, err := os.Open(dir)
+	if err != nil {
+		return
+	}
+	children, err := pkgDir.Readdir(-1)
+	pkgDir.Close()
+	if err != nil {
+		return
+	}
+	for _, child := range children {
+		name := child.Name()
+		if name == "" {
+			continue
+		}
+		if c := name[0]; c == '.' || ('0' <= c && c <= '9') {
+			continue
+		}
+		if child.IsDir() {
+			wg.Add(1)
+			go func(root, name string) {
+				defer wg.Done()
+				p.loadPkg(wg, root, name)
+			}(root, filepath.Join(importPath, name))
 		}
 	}
 }
