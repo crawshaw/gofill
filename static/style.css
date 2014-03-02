@@ -1,0 +1,214 @@
+body {
+	margin: 0;
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 16px;
+}
+pre,
+code {
+	font-family: Menlo, monospace;
+	font-size: 14px;
+}
+pre {
+	line-height: 18px;
+}
+pre .comment {
+	color: #006600;
+}
+pre .highlight,
+pre .highlight-comment,
+pre .selection-highlight,
+pre .selection-highlight-comment {
+	background: #FFFF00;
+}
+pre .selection,
+pre .selection-comment {
+	background: #FF9632;
+}
+pre .ln {
+	color: #999;
+}
+body {
+	color: #222;
+}
+a,
+.exampleHeading .text {
+	color: #375EAB;
+	text-decoration: none;
+}
+a:hover,
+.exampleHeading .text:hover {
+	text-decoration: underline;
+}
+p,
+pre,
+ul,
+ol {
+	margin: 20px;
+}
+pre {
+	background: #e9e9e9;
+	padding: 10px;
+
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+div#learn .buttons a {
+	padding: 10px;
+
+	text-decoration: none;
+	font-size: 16px;
+
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+div#learn .buttons a {
+	 color: #222;
+	border: 1px solid #375EAB;
+	background: #E0EBF5;
+}
+
+div#learn {
+	padding-top: 20px;
+}
+div#learn h2 {
+	margin: 0;
+}
+
+div#learn pre,
+div#learn textarea {
+	padding: 0;
+	margin: 0;
+	font-family: Menlo, monospace;
+	font-size: 14px;
+}
+div#learn .input {
+	padding: 10px;
+	margin-top: 10px;
+	height: 250px;
+
+	-webkit-border-top-left-radius: 5px;
+	-webkit-border-top-right-radius: 5px;
+	-moz-border-radius-topleft: 5px;
+	-moz-border-radius-topright: 5px;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+}
+div#learn .input textarea {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	width: 100%;
+	height: 100%;
+	border: none;
+	outline: none;
+	resize: none;
+}
+div#learn .output {
+	border-top: none !important;
+
+	padding: 10px;
+	height: 59px;
+	overflow: auto;
+
+	-webkit-border-bottom-right-radius: 5px;
+	-webkit-border-bottom-left-radius: 5px;
+	-moz-border-radius-bottomright: 5px;
+	-moz-border-radius-bottomleft: 5px;
+	border-bottom-right-radius: 5px;
+	border-bottom-left-radius: 5px;
+}
+div#learn .output pre {
+	padding: 0;
+
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	border-radius: 0;
+}
+div#learn .input,
+div#learn .input textarea,
+div#learn .output,
+div#learn .output pre {
+	background: #FFFFD8;
+}
+div#learn .input,
+div#learn .output {
+	border: 1px solid #375EAB;
+}
+div#learn .buttons {
+	float: right;
+	padding: 20px 0 10px 0;
+	text-align: right;
+}
+div#learn .buttons a {
+	height: 16px;
+	margin-left: 5px;
+	padding: 10px;
+}
+div#learn .toys {
+	margin-top: 8px;
+}
+div#learn .toys select {
+	border: 1px solid #375EAB;
+	margin: 0;
+}
+div#learn .output .exit {
+	display: none;
+}
+
+.toggleButton { cursor: pointer; }
+.toggle .collapsed { display: block; }
+.toggle .expanded { display: none; }
+.toggleVisible .collapsed { display: none; }
+.toggleVisible .expanded { display: block; }
+
+
+/* gofill */
+
+div#learn #doc {
+	padding: 5px;
+	float: right;
+	width: 150px;
+	text-align: left;
+
+	border: 1px solid #ddd;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+
+}
+
+.textcomplete-wrapper {
+	 display: block;
+	 width:calc(100% - 180px);
+	 height:100%;
+}
+
+.dropdown-menu {
+    border: 1px solid #ddd;
+    background-color: white;
+    text-align: left;
+}
+
+.dropdown-menu li {
+    border-top: 1px solid #ddd;
+    padding: 2px 5px;
+}
+
+.dropdown-menu li:hover,
+.dropdown-menu .active {
+    background-color: rgb(110, 183, 219);
+}
+
+.dropdown-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.dropdown-menu a:hover {
+    cursor: pointer;
+}

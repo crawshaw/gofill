@@ -6,14 +6,11 @@
 package gofill
 
 import (
-	"encoding/json"
 	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"net/http"
 	"sort"
-	"strconv"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -229,42 +226,6 @@ func (x *Index) Query(src string, offset int) Result {
 
 	sort.Sort(byName(query.res.Suggest))
 	return query.res
-}
-
-func (x *Index) Handle(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprintf(w, StaticFiles["editor.html"])
-		return
-	}
-	if r.Method != "POST" {
-		http.Error(w, "GET or POST only", 500)
-		return
-	}
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-	//filename := r.PostFormValue("filename")
-	src := r.PostFormValue("src")
-	fmt.Printf("src: %q\n", src)
-	offset, err := strconv.Atoi(r.PostFormValue("offset"))
-	if err != nil {
-		http.Error(w, fmt.Sprintf("pos: %v", err), 500)
-		return
-	}
-	if offset >= len(src) {
-		offset = len(src) - 1
-	}
-
-	res := x.Query(src, offset)
-
-	b, err := json.Marshal(res)
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-	w.Write(b)
 }
 
 type byName []Suggestion

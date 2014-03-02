@@ -22,7 +22,7 @@ type Handler struct {
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprintf(w, editorHTML)
+		fmt.Fprintf(w, StaticFiles["editor.html"])
 		return
 	}
 
@@ -55,53 +55,3 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Write(b)
 }
-
-var editorHTML = `<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<link type="text/css" rel="stylesheet" href="/lib/godoc/style.css">
-<script type="text/javascript">window.initFuncs = [];</script>
-</head>
-<body style="margin: 20px;">
-
-<div id="learn">
-<div class="input">
-
-<div id="doc">
-</div>
-
-<textarea spellcheck="false" class="code">package main
-
-import "fmt"
-
-func main() {
-	fmt
-}</textarea>
-</div>
-<div class="output">
-<pre>
-</pre>
-</div>
-<div class="buttons">
-<a class="run" href="#" title="Run this code [shift-enter]">Run</a>
-</div>
-</div>
-
-<script type="text/javascript" src="/lib/godoc/jquery.js"></script>
-<script type="text/javascript" src="/lib/godoc/jquery.textcomplete.js"></script>
-<script type="text/javascript" src="/lib/godoc/playground.js"></script>
-
-<script type="text/javascript">
-	if (window.playground) {
-		window.playground({
-			"codeEl":        "#learn .code",
-			"outputEl":      "#learn .output",
-			"runEl":         "#learn .run",
-		});
-	}
-</script>
-
-</body>
-</html>
-`

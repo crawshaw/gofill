@@ -21,7 +21,7 @@ func main() {
 
 	log.Printf("gofill service")
 
-	http.Handle("/gofill", gofill.SimpleHandler())
+	http.Handle("/fill", gofill.SimpleHandler())
 
 	startTime := time.Now()
 	for name, content := range gofill.StaticFiles {
