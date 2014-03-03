@@ -47,7 +47,9 @@ func (x *Index) scopeSearch(query *queryState, n *ast.Ident) {
 
 	// If nothing in the scope matches, speculate
 	// about potential packages.
+	// TODO(crawshaw): only do this for active suggestions
 	// TODO(crawshaw): suffixarray
+	/*
 	for name := range x.pkgNames {
 		if strings.HasPrefix(name, n.Name) {
 			if len(name) == len(n.Name) {
@@ -61,6 +63,7 @@ func (x *Index) scopeSearch(query *queryState, n *ast.Ident) {
 
 		}
 	}
+	*/
 }
 
 func (x *Index) selectorSearch(query *queryState, primary, secondary string) {

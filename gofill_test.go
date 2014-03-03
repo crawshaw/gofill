@@ -17,7 +17,10 @@ const flagDoc = "Package flag implements command-line flag parsing."
 type suggestTest struct {
 	name string
 	src  string // '‸' is removed and used as cursor position
-	want []string
+
+	// want
+	passive []string
+	active  []string // passive + these
 }
 
 var suggestTests = []suggestTest{
@@ -38,6 +41,7 @@ var suggestTests = []suggestTest{
 		`,
 		// no fmt nor flag
 		[]string{"frenchToast", "friedBread", "friedEggs", "fritters"},
+		nil,
 	},
 	{
 		"already imported package, don't suggest other packages",
@@ -53,6 +57,7 @@ var suggestTests = []suggestTest{
 		}
 		`,
 		[]string{"f2", "fakepkg"}, // no fmt, flag
+		nil,
 	},
 	{
 		"favor scope variable names",
@@ -67,6 +72,7 @@ var suggestTests = []suggestTest{
 		}
 		`,
 		[]string{"fmt", "fn"},
+		nil,
 	},
 	{
 		"do not suggest name if already complete",
@@ -75,7 +81,8 @@ var suggestTests = []suggestTest{
 		var f int
 		func main() { f‸ }
 		`,
-		nil, // nothing
+		nil,
+		nil,
 	},
 	{
 		"don't suggest package declarations",
@@ -83,6 +90,7 @@ var suggestTests = []suggestTest{
 
 		var name string
 		`,
+		nil,
 		nil,
 	},
 	{
@@ -93,6 +101,7 @@ var suggestTests = []suggestTest{
 
 		t‸ AType struct{}
 		`,
+		nil,
 		nil,
 	},
 	{
@@ -105,6 +114,7 @@ var suggestTests = []suggestTest{
 		}
 		`,
 		[]string{"AnInt"},
+		nil,
 	},
 	{
 		"switch scope",
@@ -118,6 +128,7 @@ var suggestTests = []suggestTest{
 		}
 		`,
 		[]string{"value"},
+		nil,
 	},
 	{
 		"expr switch",
@@ -131,6 +142,7 @@ var suggestTests = []suggestTest{
 		}
 		`,
 		[]string{"value"},
+		nil,
 	},
 
 	// Resilience to badly formed code
@@ -140,17 +152,19 @@ var suggestTests = []suggestTest{
 			‸
 		}`,
 		nil,
+		nil,
 	},
 
 	// TODO(crawshaw): suggest types, restrict to types.
 
 	// Suggestions based on inferring local package names.
 	{
-		"empty scope, few matching packages",
+		"empty scope, multiple matching packages, avoid large repo overload",
 		`package main
 
 		func main() { fi‸ }
 		`,
+		nil,
 		[]string{"file", "filepath"},
 	},
 	{
@@ -159,20 +173,23 @@ var suggestTests = []suggestTest{
 
 		func main() { _, err := fi‸ }
 		`,
+		nil,
 		[]string{"file", "filepath"},
 	},
 	{
-		"one matching inferred package",
+		"one matching inferred package, suggest",
 		`package main
 
 		func main() { fm‸ }
 		`,
+		nil,
 		[]string{"fmt"},
 	},
 	{
 		"don't suggest package names from other package names",
 		`package fm‸
 		`,
+		nil,
 		nil,
 	},
 
@@ -186,6 +203,7 @@ var suggestTests = []suggestTest{
 		func main() { fmt.Pri‸ }
 		`,
 		[]string{"Print", "Printf", "Println"},
+		nil,
 	},
 	{
 		"BadExpr",
@@ -194,14 +212,18 @@ var suggestTests = []suggestTest{
 		func main() { fmt.‸ }
 		`,
 		[]string{"Errorf", "Formatter", "Fprint", "Fprintf", "Fprintln", "Fscan", "Fscanf", "Fscanln", "GoStringer", "Print", "Printf", "Println", "Scan", "ScanState", "Scanf", "Scanln", "Scanner", "Sprint", "Sprintf", "Sprintln", "Sscan", "Sscanf", "Sscanln", "State", "Stringer"},
+		nil,
 	},
 	{
 		"toplevel keywords do not complete as packages",
 		`package main
 
+		import "container"
+
 		con‸ X = ""
 		`,
 		nil, // not "container"
+		nil,
 	},
 	{
 		"resilience in the face of unknown packages",
@@ -212,6 +234,7 @@ var suggestTests = []suggestTest{
 		func main() { rubbish.‸ }
 		`,
 		nil,
+		nil,
 	},
 
 	/*
@@ -220,10 +243,11 @@ var suggestTests = []suggestTest{
 			`package main
 
 			func main() {
-				var x template.HTML // narrows down which template package
+				var x template.HTML // narrows down to "html/template"
 				template.C‸
 			}`,
-			[]string{"html/template"},
+			[]string{"CSS"},
+			nil,
 		},
 	*/
 }
@@ -240,8 +264,8 @@ func TestSuggest(t *testing.T) {
 		for _, s := range res.Suggest {
 			got = append(got, s.Name)
 		}
-		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("%q:\ngot  %v\nwant %v", test.name, got, test.want)
+		if !reflect.DeepEqual(got, test.passive) {
+			t.Errorf("%q passive:\ngot  %v\nwant %v", test.name, got, test.passive)
 		}
 	}
 }
